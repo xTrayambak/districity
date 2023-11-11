@@ -1,4 +1,6 @@
-import project, schemas, project_init, project_home, project_packages, project_scripts, chronicles
+import std/[os, osproc], project, schemas,
+       project_init, project_home, project_packages, project_scripts, 
+       chronicles
 
 proc install*(project: Project, dontInstall: bool = false) =
   info "Analyzing project, loading all files"
@@ -26,5 +28,16 @@ proc install*(project: Project, dontInstall: bool = false) =
   
   info "Applying scripts."
   project.handleScripts()
+
+  info "Installing districity."
+  let res = execCmdEx(
+    "sudo install -Dm755 " & 
+    getAppFilename() & 
+    " /usr/bin/districity")
+
+  if res.exitCode != 0:
+    error "Failed to install districity. You'll need to invoke this binary from this directory or add this directory to your PATH."
+    echo res.output
+    quit(1)
 
   info "Done."

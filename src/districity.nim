@@ -1,5 +1,5 @@
 import std/os, argparse, chronicles, 
-       project, project_install, project_update
+       project, project_install, project_update, project_create
 
 proc help =
   echo """
@@ -12,6 +12,7 @@ Operations:
   apply         apply a project to the system
   upgrade       upgrade a project and apply it to the system
   validate      validate a project, i.e, ensure that it can be applied to the system
+  create        create a basic project
 """
   quit(0)
 
@@ -24,7 +25,8 @@ proc main {.inline.} =
     help()
   
   if targets.len < 1:
-    error "Specify an operation (eg. apply, upgrade)"
+    error "Specify an operation!"
+    error "Run --help for more information"
     quit(1)
 
   let operation = targets[0]
@@ -87,6 +89,14 @@ proc main {.inline.} =
       else:
         info "Project validation was successful! Please mind that this does not ensure that all operations will be successful as it is near-impossible to validate commands for every package manager."
         quit(0)
+    of "create":
+      if targets.len < 2:
+        error "Specify a project directory"
+        quit(1)
+
+      let projectDir = targets[1]
+
+      createDefaultProject(projectDir)
     else:
       error "Invalid operation! Run --help for more information"
       quit(1)

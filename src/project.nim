@@ -1,4 +1,4 @@
-import std/[os, osproc, strutils, tables], chronicles, package, toml_serialization, schemas
+import std/[os, tables], chronicles, package
 
 type
   Dotfile* = ref object of RootObj

@@ -1,4 +1,4 @@
-import std/[os, parseopt, sequtils, strutils]
+import std/[os, parseopt, sequtils]
 
 type
   ArgumentKind* = enum
