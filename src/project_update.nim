@@ -1,5 +1,5 @@
 import std/osproc
-import project, schemas, project_install, chronicles
+import project, schemas, chronicles
 
 proc update*(project: Project) =
   let initData = project.preBuiltPaths.init
@@ -12,5 +12,4 @@ proc update*(project: Project) =
     error "Project packages upgrade returned non-zero exit code. Cannot continue.", code = upgradeCode
     return
   
-  info "Project packages have been updated successfully, applying project to system."
-  project.install()
+  info "Project packages have been updated successfully."

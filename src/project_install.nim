@@ -2,7 +2,9 @@ import std/[os, osproc], project, schemas,
        project_init, project_home, project_packages, project_scripts, 
        chronicles
 
-proc install*(project: Project, dontInstall: bool = false) =
+proc install*(project: Project, 
+              dontInstall, dontHandleUsers, dontHandleScripts, dontHandleDotfiles: bool
+              ) =
   info "Analyzing project, loading all files"
   let initFile = project.preBuiltPaths.init.readFile()
   let initData = initFileSchema(initFile)
@@ -17,17 +19,19 @@ proc install*(project: Project, dontInstall: bool = false) =
   
   info "Loaded all files."
   
-  info "Applying init file data."
-  project.handleInit(initData)
-
+  if not dontHandleUsers:
+    info "Applying init file data."
+    project.handleInit(initData)
+  
   info "Applying home file data."
-  project.handleHome(homeData)
+  project.handleHome(homeData, dontInstall)
   
   info "Applying packages file data."
-  project.handlePackages(initData, packagesData, dontInstall)
+  project.handlePackages(initData, packagesData, dontInstall, dontHandleDotfiles)
   
-  info "Applying scripts."
-  project.handleScripts()
+  if not dontHandleScripts:
+    info "Applying scripts."
+    project.handleScripts()
 
   info "Installing districity."
   let res = execCmdEx(

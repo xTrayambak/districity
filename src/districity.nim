@@ -6,7 +6,13 @@ proc help =
 districity [operation] [targets]
 
 Flags:
-  --help, -h    show this message
+  --help, -h               show this message
+  --dont-install           don't install packages
+  --dont-configure-user    don't configure the user
+  --dont-handle-dotfiles   don't handle the dotfiles
+  --dont-handle-scripts    don't compile/handle scripts
+  --dotfiles               just handle dotfiles
+  --scripts                just compile/handle scripts
 
 Operations:
   apply         apply a project to the system
@@ -23,13 +29,32 @@ proc main {.inline.} =
 
   if args.isSwitchEnabled("help", "h"):
     help()
-  
+
   if targets.len < 1:
     error "Specify an operation!"
     error "Run --help for more information"
     quit(1)
 
   let operation = targets[0]
+
+  var dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles: bool
+
+  dontInstall = args.isSwitchEnabled("dont-install", "di")
+  dontConfigureUser = args.isSwitchEnabled("dont-configure-user", "dcu")
+  dontHandleScripts = args.isSwitchEnabled("dont-handle-scripts", "dhs")
+  dontHandleDotfiles = args.isSwitchEnabled("dont-handle-dotfiles", "dhd")
+
+  if args.isSwitchEnabled("dotfiles", "d"):
+    dontInstall = true
+    dontConfigureUser = true
+    dontHandleScripts = true
+    dontHandleDotfiles = false
+
+  if args.isSwitchEnabled("scripts", "s"):
+    dontInstall = true
+    dontConfigureUser = true
+    dontHandleScripts = false
+    dontHandleDotfiles = true
 
   case operation:
     of "apply":
@@ -49,7 +74,9 @@ proc main {.inline.} =
       else:
         info "Project validation was successful. Applying project to system."
       
-      project.install(args.isSwitchEnabled("dont-install", "dI"))
+      project.install(
+        dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles
+      )
     of "upgrade":
       if targets.len < 2:
         error "Specify a project directory to apply a config from"

@@ -1,15 +1,15 @@
-import std/[os, osproc, strutils], chronicles, project
+import std/[os, random, osproc, strutils], chronicles, project
 
 # TODO(xTrayambak): add support for more languages. Currently, only the following languages
 # are supported.
-# Nim, C, C++
+# Nim, C, C++ and Rust
 proc handleScriptFile*(path: string): bool =
   info "Handling script", file = path
 
   if path.endsWith("nim"):
     info "Compiling Nim code for script!", file = path
     if execCmd(
-      "nim c -d:release --panics:on -d:speed -o:" & path.changeFileExt("") & ' ' & path
+      "nim c -d:release -d:lto -d:speed -o:" & path.changeFileExt("") & ' ' & path
     ) != 0:
       error "Compilation failed for Nim binary", file = path
       return false
@@ -19,6 +19,18 @@ proc handleScriptFile*(path: string): bool =
       "gcc -o " & path.changeFileExt("") & " -O2 " & path
     ) != 0:
       error "Compilation failed for C/C++ binary", file = path
+      return false
+  elif path.endsWith("rs") or path.endsWith("skill-issue"):
+    info "Compiling Rust code for script!", file = path
+    if execCmd(
+      "rustc -C opt-level=3 " & path
+    ) != 0:
+      error "Compilation failed for Rust binary", file = path
+      
+      if rand(0..255) > 250:
+        error "You might wanna try out Nim, C, or C++, they're waaay better."
+        error "Just saying! ;)"
+
       return false
   elif path.endsWith("py") or path.endsWith("sh") or path.endsWith("zsh") or path.endsWith("bash"):
     info "Ignoring interpreter-bound scripts."
