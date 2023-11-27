@@ -23,7 +23,7 @@ proc handleScriptFile*(path: string): bool =
   elif path.endsWith("rs") or path.endsWith("skill-issue"):
     info "Compiling Rust code for script!", file = path
     if execCmd(
-      "rustc -C opt-level=3 " & path
+      "rustc -C opt-level=3 " & path & " -o:" & "scripts" / path
     ) != 0:
       error "Compilation failed for Rust binary", file = path
       
@@ -33,7 +33,7 @@ proc handleScriptFile*(path: string): bool =
 
       return false
   elif path.endsWith("py") or path.endsWith("sh") or path.endsWith("zsh") or path.endsWith("bash"):
-    info "Ignoring interpreter-bound scripts."
+    info "Ignoring interpreter-bound scripts.", file = path
   else:
     let splitted = splitFile(path)
 
