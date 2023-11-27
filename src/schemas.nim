@@ -56,6 +56,12 @@ type
   GenericConfigFileSchema* = object
     config*: GenericConfig
 
+  NimbleCore* = object
+    packages*: seq[string]
+
+  NimbleConfigFileSchema* = object
+    core*: NimbleCore
+
 proc initFileSchema*(data: string): InitFileSchema =
   let core = Toml.decode(data, InitCore, "core", TomlCaseNim)
   let distro = Toml.decode(data, InitDistro, "distro", TomlCaseNim)
@@ -77,3 +83,8 @@ proc genericConfigFileSchema*(data: string): GenericConfigFileSchema =
   let config = Toml.decode(data, GenericConfig, "config", TomlCaseNim)
 
   GenericConfigFileSchema(config: config)
+
+proc nimbleConfigFileSchema*(data: string): NimbleConfigFileSchema =
+  let core = Toml.decode(data, NimbleCore, "core", TomlCaseNim)
+
+  NimbleConfigFileSchema(core: core)

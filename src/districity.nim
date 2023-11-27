@@ -9,6 +9,7 @@ Flags:
   --help, -h               show this message
   --dont-install           don't install packages
   --dont-configure-user    don't configure the user
+  --dont-handle-home       don't handle the home/shell configuration
   --dont-handle-dotfiles   don't handle the dotfiles
   --dont-handle-scripts    don't compile/handle scripts
   --dotfiles               just handle dotfiles
@@ -37,15 +38,17 @@ proc main {.inline.} =
 
   let operation = targets[0]
 
-  var dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles: bool
+  var dontInstall, dontConfigureUser, dontHandleHome, dontHandleScripts, dontHandleDotfiles: bool
 
   dontInstall = args.isSwitchEnabled("dont-install", "di")
+  dontHandleHome = args.isSwitchEnabled("dont-handle-home", "dh")
   dontConfigureUser = args.isSwitchEnabled("dont-configure-user", "dcu")
   dontHandleScripts = args.isSwitchEnabled("dont-handle-scripts", "dhs")
   dontHandleDotfiles = args.isSwitchEnabled("dont-handle-dotfiles", "dhd")
 
   if args.isSwitchEnabled("dotfiles", "d"):
     dontInstall = true
+    dontHandleHome = true
     dontConfigureUser = true
     dontHandleScripts = true
     dontHandleDotfiles = false
@@ -53,9 +56,10 @@ proc main {.inline.} =
   if args.isSwitchEnabled("scripts", "s"):
     dontInstall = true
     dontConfigureUser = true
+    dontHandleHome = true
     dontHandleScripts = false
     dontHandleDotfiles = true
-
+  
   case operation:
     of "apply":
       if targets.len < 2:
@@ -75,7 +79,8 @@ proc main {.inline.} =
         info "Project validation was successful. Applying project to system."
       
       project.install(
-        dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles
+        dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles,
+        dontHandleHome
       )
     of "upgrade":
       if targets.len < 2:
