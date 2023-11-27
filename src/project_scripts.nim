@@ -23,7 +23,7 @@ proc handleScriptFile*(path: string): bool =
   elif path.endsWith("rs") or path.endsWith("skill-issue"):
     info "Compiling Rust code for script!", file = path
     if execCmd(
-      "rustc -C opt-level=3 " & path & " -o:" & "scripts" / path
+      "rustc -C opt-level=3 " & path & " -o " & "scripts" / path
     ) != 0:
       error "Compilation failed for Rust binary", file = path
       
