@@ -2,7 +2,7 @@ import std/[os, strutils]
 import project, schemas, chronicles, shell_omz
 
 const SUPPORTED_SHELLS* = [
-  "zsh", "bash"
+  "zsh", "bash", "fish"
 ]
 
 proc handleHome*(project: Project, home: HomeFileSchema, dontInstall: bool = false) =
@@ -45,5 +45,3 @@ source $ZSH/oh-my-zsh.sh
       else: discard
 
   info "Set-up home and shell."
-
-
