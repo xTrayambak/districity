@@ -2,13 +2,8 @@ import std/tables, toml_serialization
 
 type
   ## Default
-  BaseFileSchema* = TableRef[
-    string,
-    Table[
-      string, TomlValueRef
-    ]
-  ]
-  
+  BaseFileSchema* = TableRef[string, Table[string, TomlValueRef]]
+
   ## init.toml
   InitCore* = object
     name*: string
@@ -39,12 +34,12 @@ type
 
   HomeFileSchema* = object
     home*: HomeEnv
-  
+
   ## packages.toml
   PackagesCore* = object
     programs*: seq[string]
     imports*: seq[string]
-  
+
   PackagesFileSchema* = object
     core*: PackagesCore
 

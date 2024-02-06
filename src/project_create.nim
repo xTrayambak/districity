@@ -1,7 +1,8 @@
-import std/os, chronicles
+import std/[logging, os]
 
 const
-  DEFAULT_INIT = """
+  DEFAULT_INIT =
+    """
 # The core config, doesn't really matter what you put here.
 [core]
 name = "Example Config"
@@ -24,7 +25,8 @@ name = "Your Username"
 default_password = "districity"
 groups = ["wheel", "kvm", "audio", "input"]
 """
-  DEFAULT_HOME = """
+  DEFAULT_HOME =
+    """
 # Your "home" (/home/your_username) configuration.
 # Configure your shell, whether you want to use oh my zsh, your environment variables
 # and your shell RC file.
@@ -39,7 +41,8 @@ env = [
 ]
 rc = ""
 """
-  DEFAULT_PACKAGES = """
+  DEFAULT_PACKAGES =
+    """
 # All the packages you want.
 # Add all of those to the programs list.
 #
@@ -63,7 +66,7 @@ proc isEmpty(dir: string): bool {.inline.} =
 
 proc createDefaultProject*(dirName: string) =
   if dirExists(dirName) and not isEmpty(dirName):
-    error "Directory already exists and is not empty.", directory=dirName
+    error "Directory already exists and is not empty: " & dirName
     quit(1)
 
   discard existsOrCreateDir(dirName)
@@ -72,19 +75,22 @@ proc createDefaultProject*(dirName: string) =
 
   info "Writing init file."
   let initFile = open(dirName / "init.toml", fmWrite)
-  defer: initFile.close()
+  defer:
+    initFile.close()
 
   initFile.write(DEFAULT_INIT)
 
   info "Writing home file."
   let homeFile = open(dirName / "home.toml", fmWrite)
-  defer: homeFile.close()
+  defer:
+    homeFile.close()
 
   homeFile.write(DEFAULT_HOME)
 
   info "Writing packages file."
   let packagesFile = open(dirName / "packages.toml", fmWrite)
-  defer: packagesFile.close()
+  defer:
+    packagesFile.close()
 
   packagesFile.write(DEFAULT_PACKAGES)
 

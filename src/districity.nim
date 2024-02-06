@@ -1,7 +1,13 @@
-import std/os, argparse, chronicles, 
-       project, project_install, project_update, project_create
+import
+  std/[logging, os],
+  colored_logger,
+  argparse,
+  project,
+  project_install,
+  project_update,
+  project_create
 
-proc help =
+proc help() =
   echo """
 districity [operation] [targets]
 
@@ -23,10 +29,13 @@ Operations:
 """
   quit(0)
 
-proc main {.inline.} =
-  let 
+proc main() {.inline.} =
+  let
     args = parseArguments()
     targets = args.getTargets()
+    logger = newColoredLogger()
+
+  addHandler(logger)
 
   if args.isSwitchEnabled("help", "h"):
     help()
@@ -38,7 +47,9 @@ proc main {.inline.} =
 
   let operation = targets[0]
 
-  var dontInstall, dontConfigureUser, dontHandleHome, dontHandleScripts, dontHandleDotfiles: bool
+  var
+    dontInstall, dontConfigureUser, dontHandleHome, dontHandleScripts,
+      dontHandleDotfiles: bool
 
   dontInstall = args.isSwitchEnabled("dont-install", "di")
   dontHandleHome = args.isSwitchEnabled("dont-handle-home", "dh")
@@ -59,79 +70,79 @@ proc main {.inline.} =
     dontHandleHome = true
     dontHandleScripts = false
     dontHandleDotfiles = true
-  
-  case operation:
-    of "apply":
-      if targets.len < 2:
-        error "Specify a project directory to apply a config from"
-        quit(1)
 
-      let projectDir = targets[1]
-      if not dirExists(projectDir):
-        error "Specified project directory does not exist"
-        quit(1)
-
-      let project = newProject(projectDir)
-      if not project.validate():
-        error "Project validation failed. Are you sure that this is a valid project?"
-        quit(1)
-      else:
-        info "Project validation was successful. Applying project to system."
-      
-      project.install(
-        dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles,
-        dontHandleHome
-      )
-    of "upgrade":
-      if targets.len < 2:
-        error "Specify a project directory to apply a config from"
-        quit(1)
-
-      let projectDir = targets[1]
-
-      if not dirExists(projectDir):
-        error "Specified project directory does not exist"
-        quit(1)
-
-      let project = newProject(projectDir)
-      
-      if not project.validate():
-        error "Project validation failed. Are you sure that this is a valid project?"
-        quit(1)
-      else:
-        info "Project validation was successful. Applying upgraded project to system."
-        project.update()
-    of "validate":
-      if targets.len < 2:
-        error "Specify a project directory to validate"
-        quit(1)
-
-      let projectDir = targets[1]
-
-      if not dirExists(projectDir):
-        error "Specified project directory does not exist"
-        quit(1)
-
-      let project = newProject(projectDir)
-      
-      info "Validating project."
-      if not project.validate():
-        error "Project validation failed. All errors have been displayed above."
-        quit(1)
-      else:
-        info "Project validation was successful! Please mind that this does not ensure that all operations will be successful as it is near-impossible to validate commands for every package manager."
-        quit(0)
-    of "create":
-      if targets.len < 2:
-        error "Specify a project directory"
-        quit(1)
-
-      let projectDir = targets[1]
-
-      createDefaultProject(projectDir)
-    else:
-      error "Invalid operation! Run --help for more information"
+  case operation
+  of "apply":
+    if targets.len < 2:
+      error "Specify a project directory to apply a config from"
       quit(1)
+
+    let projectDir = targets[1]
+    if not dirExists(projectDir):
+      error "Specified project directory does not exist"
+      quit(1)
+
+    let project = newProject(projectDir)
+    if not project.validate():
+      error "Project validation failed. Are you sure that this is a valid project?"
+      quit(1)
+    else:
+      info "Project validation was successful. Applying project to system."
+
+    project.install(
+      dontInstall, dontConfigureUser, dontHandleScripts, dontHandleDotfiles,
+      dontHandleHome
+    )
+  of "upgrade":
+    if targets.len < 2:
+      error "Specify a project directory to apply a config from"
+      quit(1)
+
+    let projectDir = targets[1]
+
+    if not dirExists(projectDir):
+      error "Specified project directory does not exist"
+      quit(1)
+
+    let project = newProject(projectDir)
+
+    if not project.validate():
+      error "Project validation failed. Are you sure that this is a valid project?"
+      quit(1)
+    else:
+      info "Project validation was successful. Applying upgraded project to system."
+      project.update()
+  of "validate":
+    if targets.len < 2:
+      error "Specify a project directory to validate"
+      quit(1)
+
+    let projectDir = targets[1]
+
+    if not dirExists(projectDir):
+      error "Specified project directory does not exist"
+      quit(1)
+
+    let project = newProject(projectDir)
+
+    info "Validating project."
+    if not project.validate():
+      error "Project validation failed. All errors have been displayed above."
+      quit(1)
+    else:
+      info "Project validation was successful! Please mind that this does not ensure that all operations will be successful as it is near-impossible to validate commands for every package manager."
+      quit(0)
+  of "create":
+    if targets.len < 2:
+      error "Specify a project directory"
+      quit(1)
+
+    let projectDir = targets[1]
+
+    createDefaultProject(projectDir)
+  else:
+    error "Invalid operation! Run --help for more information"
+    quit(1)
 
 when isMainModule:
   main()

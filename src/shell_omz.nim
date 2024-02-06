@@ -1,7 +1,9 @@
-import std/[os, osproc, httpclient], chronicles
+import std/[os, osproc, httpclient, logging]
 
 const NimblePkgVersion {.strdefine.} = "0.1.0"
-const OMZ_URL {.strdefine.} = "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+const
+  OMZ_URL {.strdefine.} =
+    "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
 
 proc installOmz*(shell: string): bool =
   when not defined(ssl):
@@ -11,13 +13,11 @@ proc installOmz*(shell: string): bool =
   info "Fetching Oh My Zsh bootstrap script."
   let client = newHttpClient(userAgent = "Districity/" & NimblePkgVersion)
   let path = "/tmp" / getEnv("USER") / "omz.sh"
-  
-  info "Downloading bootstrap script.", url = OMZ_URL, path = path
+
+  info "Downloading bootstrap script: " & OMZ_URL
   client.downloadFile(OMZ_URL, path)
 
-  if execCmd(
-    shell & ' ' & path
-  ) != 0:
+  if execCmd(shell & ' ' & path) != 0:
     error "Failed to execute Oh My Zsh bootstrap script!"
     return false
 

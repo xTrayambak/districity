@@ -1,4 +1,4 @@
-import std/[os, tables], chronicles, package
+import std/[os, tables, logging], package
 
 type
   Dotfile* = ref object of RootObj
@@ -8,9 +8,7 @@ type
   Project* = ref object of RootObj
     root*: string
 
-    preBuiltPaths*: tuple[
-      home, init, packages: string
-    ]
+    preBuiltPaths*: tuple[home, init, packages: string]
 
     runtimePaths*: TableRef[string, string]
 
@@ -35,11 +33,8 @@ proc newProject*(dir: string): Project =
   var project = Project()
   project.root = dir
 
-  project.preBuiltPaths = (
-    home: dir / "home.toml",
-    init: dir / "init.toml",
-    packages: dir / "packages.toml"
-  )
+  project.preBuiltPaths =
+    (home: dir / "home.toml", init: dir / "init.toml", packages: dir / "packages.toml")
 
   project.runtimePaths = newTable[string, string]()
   project.dotfiles = newTable[string, Dotfile]()
