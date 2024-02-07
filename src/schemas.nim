@@ -8,9 +8,10 @@ type
   InitCore* = object
     name*: string
     authors*: string
+    escalation*: string = "sudo"  ## Privilege escalation binary
 
   InitDistro* = object
-    name*: string
+    name*: string = "Unnamed Distribution"
     packageSyncRepos*: string
     packageInstallCmd*: string
     packageUninstallCmd*: string

@@ -1,8 +1,8 @@
-import std/[os, tables, logging], package
+import std/[os, tables, logging]
 
 type
   Dotfile* = ref object of RootObj
-    package*: Package
+    package*: string
     files*: tuple[belongs, filename: string]
 
   Project* = ref object of RootObj

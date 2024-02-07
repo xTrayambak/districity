@@ -1,5 +1,5 @@
-import std/[logging, os]
-import project, project_dotfiles, package, schemas
+import std/[logging, os, osproc]
+import project, project_dotfiles, schemas
 
 proc handlePackages*(
     project: Project,
@@ -7,12 +7,12 @@ proc handlePackages*(
     packages: PackagesFileSchema,
     dryRun, dontHandleDotfiles: bool,
 ) =
+  var finalInstallString = init.core.escalation & ' ' & init.distro.packageInstallCmd
   let core = packages.core
 
   for pkg in core.programs:
     if not dryRun:
-      let package = Package(name: pkg)
-      package.install(init)
+      finalInstallString &= ' ' & pkg
 
     if fileExists(project.root / pkg & ".toml") and not dontHandleDotfiles:
       info "Analyzing extra config for package: " & pkg
@@ -30,3 +30,9 @@ proc handlePackages*(
       let file = (project.root / impFile).readFile().packagesFileSchema()
 
       project.handlePackages(init, file, dryRun, dontHandleDotfiles)
+
+  let res = execCmd(finalInstallString)
+
+  if res != 0:
+    error "Install command returned non-zero exit code: " & $res
+    error "Command: " & finalInstallString
